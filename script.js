@@ -2,7 +2,7 @@
 // 1. CONFIGURATION
 // =============================================
 const CONFIG = {
-  API_KEY: "VOTRE_CLE_API_OPENWEATHER", // À remplacer
+  API_KEY: "e5beba1102080218e30eecbd5e19ba6f", // À remplacer
   BASE_URL: "https://api.openweathermap.org/data/2.5",
   UNITS: "metric",
   LANG: "fr",
