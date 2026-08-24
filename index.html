@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Météo Maroc - Plateforme Officielle</title>
+    <link rel="stylesheet" href="style.css" />
+    <!-- Font Awesome pour les icônes -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <header>
+      <div class="header-content">
+        <h1><i class="fas fa-cloud-sun"></i> Météo Maroc</h1>
+        <p>Prévisions météo pour les 12 régions du Royaume</p>
+        <div class="search-box">
+          <input
+            type="text"
+            id="searchInput"
+            placeholder="Rechercher une région ou ville..."
+          />
+          <button id="searchBtn"><i class="fas fa-search"></i></button>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <!-- Section Régions -->
+      <section id="regions-section">
+        <h2>Les 12 Régions du Maroc</h2>
+        <div id="regions-grid" class="regions-grid">
+          <!-- Les régions seront générées dynamiquement -->
+        </div>
+      </section>
+
+      <!-- Section Villes (cachée initialement) -->
+      <section id="cities-section" style="display: none">
+        <button id="backToRegions" class="back-btn">
+          <i class="fas fa-arrow-left"></i> Retour aux régions
+        </button>
+        <h2 id="region-title">Villes de la région</h2>
+        <div id="cities-grid" class="cities-grid">
+          <!-- Les villes seront générées dynamiquement -->
+        </div>
+      </section>
+
+      <!-- Section Détails ville (cachée initialement) -->
+      <section id="city-detail-section" style="display: none">
+        <button id="backToCities" class="back-btn">
+          <i class="fas fa-arrow-left"></i> Retour aux villes
+        </button>
+        <div id="city-detail-content">
+          <!-- Détails météo de la ville -->
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p>&copy; 2026 Météo Maroc | Données fournies par OpenWeatherMap</p>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>
