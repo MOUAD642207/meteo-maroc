@@ -1,4 +1,6 @@
-// Configuration
+// =============================================
+// 1. CONFIGURATION
+// =============================================
 const CONFIG = {
   API_KEY: "VOTRE_CLE_API_OPENWEATHER", // À remplacer
   BASE_URL: "https://api.openweathermap.org/data/2.5",
@@ -6,7 +8,9 @@ const CONFIG = {
   LANG: "fr",
 };
 
-// Données des 12 régions du Maroc avec leurs villes principales
+// =============================================
+// 2. DONNÉES DES RÉGIONS
+// =============================================
 const REGIONS = [
   {
     id: "tanger-tetouan",
@@ -82,19 +86,87 @@ const REGIONS = [
   },
 ];
 
-// État de l'application
+// =============================================
+// 3. ÉTAT DE L'APPLICATION
+// =============================================
 let currentRegion = null;
 let currentCity = null;
+let isDarkMode = false;
 
-// Initialisation
-document.addEventListener("DOMContentLoaded", () => {
-  displayRegions();
-  setupEventListeners();
-});
+// =============================================
+// 4. NOUVEAU : PARTICULES FLOTTANTES
+// =============================================
+function createParticles() {
+  const container = document.getElementById("particles");
+  if (!container) return; // Sécurité si l'élément n'existe pas
 
-// Afficher les régions
+  for (let i = 0; i < 30; i++) {
+    const particle = document.createElement("div");
+    particle.className = "particle";
+    particle.style.left = Math.random() * 100 + "%";
+    particle.style.animationDuration = 15 + Math.random() * 25 + "s";
+    particle.style.animationDelay = Math.random() * 20 + "s";
+    particle.style.width = 2 + Math.random() * 6 + "px";
+    particle.style.height = particle.style.width;
+    container.appendChild(particle);
+  }
+}
+
+// =============================================
+// 5. NOUVEAU : TOGGLE THEME (Sombre/Clair)
+// =============================================
+function toggleTheme() {
+  isDarkMode = !isDarkMode;
+  const root = document.documentElement;
+  const toggleBtn = document.getElementById("themeToggle");
+
+  if (isDarkMode) {
+    // Mode sombre
+    root.style.setProperty("--bg-gradient-start", "#0f0c29");
+    root.style.setProperty("--bg-gradient-end", "#24243e");
+    root.style.setProperty("--glass-bg", "rgba(0, 0, 0, 0.5)");
+    root.style.setProperty("--glass-border", "rgba(255, 255, 255, 0.1)");
+    if (toggleBtn) {
+      toggleBtn.innerHTML = '<i class="fas fa-sun"></i><span>Clair</span>';
+    }
+  } else {
+    // Mode clair
+    root.style.setProperty("--bg-gradient-start", "#667eea");
+    root.style.setProperty("--bg-gradient-end", "#764ba2");
+    root.style.setProperty("--glass-bg", "rgba(255, 255, 255, 0.15)");
+    root.style.setProperty("--glass-border", "rgba(255, 255, 255, 0.2)");
+    if (toggleBtn) {
+      toggleBtn.innerHTML = '<i class="fas fa-moon"></i><span>Sombre</span>';
+    }
+  }
+}
+
+// =============================================
+// 6. NOUVEAU : ANIMATION DES CARTES
+// =============================================
+function animateCards() {
+  const cards = document.querySelectorAll(".region-card, .city-card");
+  cards.forEach((card, index) => {
+    card.style.opacity = "0";
+    card.style.transform = "translateY(30px)";
+    setTimeout(
+      () => {
+        card.style.transition = "all 0.5s cubic-bezier(0.4, 0, 0.2, 1)";
+        card.style.opacity = "1";
+        card.style.transform = "translateY(0)";
+      },
+      100 + index * 50,
+    );
+  });
+}
+
+// =============================================
+// 7. AFFICHER LES RÉGIONS (MODIFIÉ)
+// =============================================
 function displayRegions() {
   const grid = document.getElementById("regions-grid");
+  if (!grid) return;
+
   grid.innerHTML = REGIONS.map(
     (region) => `
         <div class="region-card" data-region-id="${region.id}">
@@ -104,39 +176,19 @@ function displayRegions() {
         </div>
     `,
   ).join("");
+
+  // Ajouter l'animation après un petit délai
+  setTimeout(animateCards, 100);
 }
 
-// Gestion des événements
-function setupEventListeners() {
-  // Clic sur les régions
-  document.querySelectorAll(".region-card").forEach((card) => {
-    card.addEventListener("click", () => {
-      const regionId = card.dataset.regionId;
-      showCities(regionId);
-    });
-  });
-
-  // Bouton retour régions
-  document.getElementById("backToRegions").addEventListener("click", () => {
-    showRegionsView();
-  });
-
-  // Bouton retour villes
-  document.getElementById("backToCities").addEventListener("click", () => {
-    showCitiesView(currentRegion);
-  });
-
-  // Recherche
-  document.getElementById("searchBtn").addEventListener("click", handleSearch);
-  document.getElementById("searchInput").addEventListener("keypress", (e) => {
-    if (e.key === "Enter") handleSearch();
-  });
-}
-
-// Afficher les villes d'une région
+// =============================================
+// 8. AFFICHER LES VILLES (MODIFIÉ)
+// =============================================
 async function showCities(regionId) {
   currentRegion = regionId;
   const region = REGIONS.find((r) => r.id === regionId);
+
+  if (!region) return;
 
   document.getElementById("regions-section").style.display = "none";
   document.getElementById("cities-section").style.display = "block";
@@ -173,6 +225,9 @@ async function showCities(regionId) {
       )
       .join("");
 
+    // Ajouter l'animation
+    setTimeout(animateCards, 100);
+
     // Ajouter les événements de clic sur les villes
     document.querySelectorAll(".city-card").forEach((card) => {
       card.addEventListener("click", () => {
@@ -185,7 +240,9 @@ async function showCities(regionId) {
   }
 }
 
-// Afficher les détails d'une ville
+// =============================================
+// 9. AFFICHER LES DÉTAILS D'UNE VILLE
+// =============================================
 async function showCityDetail(cityName) {
   currentCity = cityName;
   document.getElementById("cities-section").style.display = "none";
@@ -200,35 +257,39 @@ async function showCityDetail(cityName) {
     const forecast = await getForecastData(cityName);
 
     content.innerHTML = `
-            <h2 style="color: var(--primary);">${cityName}</h2>
+            <h2 style="color: white;">${cityName}</h2>
             
-            <div style="display: flex; align-items: center; justify-content: center; gap: 2rem; margin: 1.5rem 0; flex-wrap: wrap;">
-                <div style="text-align: center;">
-                    <i class="fas ${getWeatherIcon(weather.weather[0].icon)}" style="font-size: 4rem; color: var(--accent);"></i>
-                    <div style="font-size: 3rem; font-weight: bold;">${Math.round(weather.main.temp)}°C</div>
-                    <div style="font-size: 1.2rem; color: #555;">${weather.weather[0].description}</div>
+            <div class="weather-main-info">
+                <div class="temp-display">
+                    <i class="fas ${getWeatherIcon(weather.weather[0].icon)}"></i>
+                    <div class="temp-value">${Math.round(weather.main.temp)}°C</div>
+                    <div class="temp-desc">${weather.weather[0].description}</div>
                 </div>
-                <div class="weather-detail">
+                <div class="weather-detail-grid">
                     <div class="weather-detail-item">
                         <i class="fas fa-thermometer-half"></i>
-                        <div>Ressenti: ${Math.round(weather.main.feels_like)}°C</div>
+                        <div class="label">Ressenti</div>
+                        <div class="value">${Math.round(weather.main.feels_like)}°C</div>
                     </div>
                     <div class="weather-detail-item">
                         <i class="fas fa-tint"></i>
-                        <div>Humidité: ${weather.main.humidity}%</div>
+                        <div class="label">Humidité</div>
+                        <div class="value">${weather.main.humidity}%</div>
                     </div>
                     <div class="weather-detail-item">
                         <i class="fas fa-wind"></i>
-                        <div>Vent: ${Math.round(weather.wind.speed * 3.6)} km/h</div>
+                        <div class="label">Vent</div>
+                        <div class="value">${Math.round(weather.wind.speed * 3.6)} km/h</div>
                     </div>
                     <div class="weather-detail-item">
                         <i class="fas fa-compress-alt"></i>
-                        <div>Pression: ${weather.main.pressure} hPa</div>
+                        <div class="label">Pression</div>
+                        <div class="value">${weather.main.pressure} hPa</div>
                     </div>
                 </div>
             </div>
             
-            <h3 style="margin-top: 2rem; color: var(--primary);">Prévisions 5 jours</h3>
+            <h3 style="color: white; margin-top: 2rem;">Prévisions 5 jours</h3>
             <div class="forecast-grid">
                 ${forecast.list
                   .filter((item, index) => index % 8 === 0)
@@ -237,9 +298,9 @@ async function showCityDetail(cityName) {
                     (day) => `
                     <div class="forecast-day">
                         <div class="date">${new Date(day.dt * 1000).toLocaleDateString("fr-FR", { weekday: "short" })}</div>
-                        <i class="fas ${getWeatherIcon(day.weather[0].icon)}" style="font-size: 2rem; color: var(--secondary);"></i>
-                        <div style="font-size: 1.3rem; font-weight: bold;">${Math.round(day.main.temp)}°C</div>
-                        <div style="font-size: 0.9rem; color: #666;">${day.weather[0].description}</div>
+                        <i class="fas ${getWeatherIcon(day.weather[0].icon)}"></i>
+                        <div class="temp">${Math.round(day.main.temp)}°C</div>
+                        <div class="desc">${day.weather[0].description}</div>
                     </div>
                 `,
                   )
@@ -251,7 +312,9 @@ async function showCityDetail(cityName) {
   }
 }
 
-// Fonctions API
+// =============================================
+// 10. FONCTIONS API
+// =============================================
 async function getWeatherData(city) {
   const url = `${CONFIG.BASE_URL}/weather?q=${city},MA&units=${CONFIG.UNITS}&lang=${CONFIG.LANG}&appid=${CONFIG.API_KEY}`;
   const response = await fetch(url);
@@ -267,7 +330,9 @@ async function getForecastData(city) {
   return response.json();
 }
 
-// Helper: Icônes météo
+// =============================================
+// 11. HELPER : ICÔNES MÉTÉO
+// =============================================
 function getWeatherIcon(iconCode) {
   const icons = {
     "01d": "fa-sun",
@@ -292,7 +357,9 @@ function getWeatherIcon(iconCode) {
   return icons[iconCode] || "fa-cloud";
 }
 
-// Navigation
+// =============================================
+// 12. NAVIGATION
+// =============================================
 function showRegionsView() {
   document.getElementById("regions-section").style.display = "block";
   document.getElementById("cities-section").style.display = "none";
@@ -310,12 +377,13 @@ function showCitiesView(regionId) {
   }
 }
 
-// Recherche
+// =============================================
+// 13. RECHERCHE
+// =============================================
 function handleSearch() {
   const query = document.getElementById("searchInput").value.trim();
   if (!query) return;
 
-  // Chercher dans les régions
   const region = REGIONS.find(
     (r) =>
       r.name.toLowerCase().includes(query.toLowerCase()) ||
@@ -324,7 +392,6 @@ function handleSearch() {
 
   if (region) {
     showCities(region.id);
-    // Si c'est une ville spécifique, afficher directement ses détails
     const cityMatch = region.cities.find(
       (c) => c.toLowerCase() === query.toLowerCase(),
     );
@@ -335,3 +402,53 @@ function handleSearch() {
     alert("Aucune région ou ville trouvée");
   }
 }
+
+// =============================================
+// 14. GESTION DES ÉVÉNEMENTS
+// =============================================
+function setupEventListeners() {
+  // Délégation d'événements pour les régions (clics sur les cartes)
+  document.getElementById("regions-grid").addEventListener("click", (e) => {
+    const card = e.target.closest(".region-card");
+    if (card) {
+      const regionId = card.dataset.regionId;
+      showCities(regionId);
+    }
+  });
+
+  // Bouton retour régions
+  document.getElementById("backToRegions").addEventListener("click", () => {
+    showRegionsView();
+  });
+
+  // Bouton retour villes
+  document.getElementById("backToCities").addEventListener("click", () => {
+    showCitiesView(currentRegion);
+  });
+
+  // Recherche
+  document.getElementById("searchBtn").addEventListener("click", handleSearch);
+  document.getElementById("searchInput").addEventListener("keypress", (e) => {
+    if (e.key === "Enter") handleSearch();
+  });
+
+  // Theme toggle
+  const themeToggle = document.getElementById("themeToggle");
+  if (themeToggle) {
+    themeToggle.addEventListener("click", toggleTheme);
+  }
+}
+
+// =============================================
+// 15. INITIALISATION
+// =============================================
+document.addEventListener("DOMContentLoaded", () => {
+  // Créer les particules
+  createParticles();
+
+  // Afficher les régions
+  displayRegions();
+
+  // Configurer les événements
+  setupEventListeners();
+});
